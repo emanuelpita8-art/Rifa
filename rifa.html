@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rifa - 30 de agosto del 2026</title>
+    <style>
+      :root {
+        --bg: #0f1420;
+        --card: #171f2e;
+        --card2: #1d2740;
+        --text: #eef1f8;
+        --muted: #9aa4b8;
+        --libre: #1f9d55;
+        --libre-glow: #2ecc71;
+        --reservado: #e0a800;
+        --reservado-glow: #f5c542;
+        --pagado: #d1364a;
+        --pagado-glow: #ff4d6d;
+        --accent: #5b7cfa;
+        --border: #2a3450;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family:
+          "Segoe UI",
+          system-ui,
+          -apple-system,
+          Arial,
+          sans-serif;
+        background: radial-gradient(circle at top, #1a2338 0%, #0b0f18 70%);
+        color: var(--text);
+        min-height: 100vh;
+        padding: 24px 16px 80px;
+      }
+      .wrap {
+        max-width: 920px;
+        margin: 0 auto;
+      }
+      header {
+        text-align: center;
+        margin-bottom: 22px;
+      }
+      header h1 {
+        font-size: 1.8rem;
+        margin: 0 0 4px;
+        letter-spacing: 0.5px;
+      }
+      header .fecha {
+        color: var(--accent);
+        font-weight: 600;
+        font-size: 1.05rem;
+      }
+      header .hora {
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin-top: 2px;
+      }
+
+      .countdown-box {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 16px 20px;
+        margin: 18px auto;
+        max-width: 520px;
+        text-align: center;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      }
+      .countdown-label {
+        font-size: 0.85rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+      }
+      .countdown-timer {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .countdown-timer .unit {
+        background: var(--card2);
+        border-radius: 10px;
+        padding: 8px 14px;
+        min-width: 64px;
+      }
+      .countdown-timer .num {
+        font-size: 1.6rem;
+        font-weight: 700;
+        display: block;
+        line-height: 1;
+      }
+      .countdown-timer .lbl {
+        font-size: 0.65rem;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+      .closed-banner {
+        display: none;
+        background: linear-gradient(90deg, #d1364a, #8a1f30);
+        color: #fff;
+        font-weight: 700;
+        padding: 14px;
+        border-radius: 12px;
+        text-align: center;
+        margin: 0 auto 18px;
+        max-width: 520px;
+        box-shadow: 0 6px 18px rgba(209, 54, 74, 0.4);
+      }
+
+      .legend {
+        display: flex;
+        justify-content: center;
+        gap: 22px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+        font-size: 0.85rem;
+      }
+      .legend .item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--muted);
+      }
+      .legend .dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 5px;
+        display: inline-block;
+      }
+      .dot.libre {
+        background: var(--libre);
+      }
+      .dot.reservado {
+        background: var(--reservado);
+      }
+      .dot.pagado {
+        background: var(--pagado);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 8px;
+        background: var(--card);
+        padding: 18px;
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      }
+      .ticket {
+        aspect-ratio: 1/1;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.95rem;
+        background: var(--libre);
+        color: #eafff1;
+        cursor: default;
+        user-select: none;
+        position: relative;
+        transition:
+          transform 0.12s ease,
+          box-shadow 0.12s ease;
+        border: 2px solid rgba(255, 255, 255, 0.06);
+      }
+      .ticket.reservado {
+        background: var(--reservado);
+        color: #3a2900;
+      }
+      .ticket.pagado {
+        background: var(--pagado);
+        color: #3a0010;
+      }
+
+      .admin-mode .ticket {
+        cursor: pointer;
+      }
+      .admin-mode .ticket:hover {
+        transform: translateY(-3px) scale(1.06);
+        box-shadow:
+          0 0 0 3px var(--accent),
+          0 6px 14px rgba(0, 0, 0, 0.4);
+        z-index: 2;
+      }
+
+      .locked .ticket {
+        cursor: not-allowed !important;
+      }
+      .locked .ticket:hover {
+        transform: none;
+        box-shadow: none;
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 26px;
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+
+      /* Admin gear button */
+      .admin-fab {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        background: var(--card2);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        cursor: pointer;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+        opacity: 0.55;
+        transition: opacity 0.2s;
+      }
+      .admin-fab:hover {
+        opacity: 1;
+      }
+
+      .admin-banner {
+        display: none;
+        text-align: center;
+        background: linear-gradient(90deg, #5b7cfa, #7b3ffa);
+        color: #fff;
+        font-weight: 700;
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 14px;
+        max-width: 520px;
+        margin-left: auto;
+        margin-right: auto;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+      }
+      .admin-hint {
+        display: none;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.78rem;
+        margin-top: 10px;
+      }
+
+      /* Modal */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        align-items: center;
+        justify-content: center;
+        z-index: 50;
+      }
+      .modal {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 24px;
+        width: 90%;
+        max-width: 320px;
+        text-align: center;
+      }
+      .modal h3 {
+        margin-top: 0;
+      }
+      .modal input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--card2);
+        color: var(--text);
+        font-size: 1rem;
+        margin: 12px 0;
+        text-align: center;
+        letter-spacing: 2px;
+      }
+      .modal-buttons {
+        display: flex;
+        gap: 10px;
+      }
+      .modal button {
+        flex: 1;
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+      }
+      .btn-secondary {
+        background: var(--card2);
+        color: var(--muted);
+        border: 1px solid var(--border) !important;
+      }
+      .modal-error {
+        color: var(--pagado-glow);
+        font-size: 0.8rem;
+        min-height: 16px;
+        margin-top: -4px;
+      }
+
+      /* small legend tip for admin cycling */
+      .cycle-tip {
+        display: none;
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin: -8px 0 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>🎟️ Gran Rifa</h1>
+        <div class="fecha" id="fechaSorteo">30 de agosto del 2026</div>
+        <div class="hora">Sorteo a las 3:00 PM (hora de Panamá)</div>
+      </header>
+
+      <div class="closed-banner" id="closedBanner">
+        🚫 VENTAS CERRADAS — Ya no se pueden reservar ni comprar números
+      </div>
+
+      <div class="countdown-box" id="countdownBox">
+        <div class="countdown-label">
+          Tiempo restante para comprar / reservar
+        </div>
+        <div class="countdown-timer">
+          <div class="unit">
+            <span class="num" id="cd-days">--</span
+            ><span class="lbl">días</span>
+          </div>
+          <div class="unit">
+            <span class="num" id="cd-hours">--</span
+            ><span class="lbl">horas</span>
+          </div>
+          <div class="unit">
+            <span class="num" id="cd-mins">--</span><span class="lbl">min</span>
+          </div>
+          <div class="unit">
+            <span class="num" id="cd-secs">--</span><span class="lbl">seg</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-banner" id="adminBanner">
+        ⚙ MODO ORGANIZADOR ACTIVO — Toca un número para cambiar su estado
+      </div>
+      <div class="cycle-tip" id="cycleTip">
+        Cada clic cambia el color: 🟢 Libre → 🟡 Reservado → 🔴 Pagado → 🟢
+        Libre
+      </div>
+
+      <div class="legend">
+        <div class="item"><span class="dot libre"></span> Disponible</div>
+        <div class="item">
+          <span class="dot reservado"></span> Reservado (aún se puede comprar)
+        </div>
+        <div class="item"><span class="dot pagado"></span> Pagado</div>
+      </div>
+
+      <div class="grid" id="grid"></div>
+
+      <div class="admin-hint" id="adminHint">
+        Modo organizador activo — los cambios se guardan y son visibles para
+        todos.
+      </div>
+
+      <footer>
+        Toca el número 28 para verlo pagado 😉 &nbsp;·&nbsp; Página de
+        visualización de la rifa
+      </footer>
+    </div>
+
+    <div class="admin-fab" id="adminFab" title="Modo organizador">⚙️</div>
+
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal">
+        <h3 id="modalTitle">Acceso organizador</h3>
+        <input
+          type="password"
+          id="pinInput"
+          placeholder="PIN"
+          maxlength="6"
+          inputmode="numeric"
+        />
+        <div class="modal-error" id="modalError"></div>
+        <div class="modal-buttons">
+          <button class="btn-secondary" id="modalCancel">Cancelar</button>
+          <button class="btn-primary" id="modalConfirm">Entrar</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const TOTAL = 100;
+        const PIN = "2026"; // PIN simple del organizador (cámbialo si quieres)
+        // Fecha/hora límite: 30 de agosto de 2026, 2:30 PM hora de Panamá (media hora antes de las 3:00 PM)
+        // Panamá no tiene horario de verano, siempre UTC-5 => 14:30 -05:00 = 19:30 UTC
+        const CUTOFF_UTC = Date.UTC(2026, 7, 30, 19, 30, 0);
+
+        const STORAGE_KEY = "raffle_tickets_v1";
+        let tickets = new Array(TOTAL).fill(0); // 0 libre, 1 reservado, 2 pagado
+        let isAdmin = false;
+        let isLocked = false;
+
+        const grid = document.getElementById("grid");
+        const adminFab = document.getElementById("adminFab");
+        const modalOverlay = document.getElementById("modalOverlay");
+        const pinInput = document.getElementById("pinInput");
+        const modalError = document.getElementById("modalError");
+        const modalConfirm = document.getElementById("modalConfirm");
+        const modalCancel = document.getElementById("modalCancel");
+        const adminBanner = document.getElementById("adminBanner");
+        const cycleTip = document.getElementById("cycleTip");
+        const adminHint = document.getElementById("adminHint");
+        const closedBanner = document.getElementById("closedBanner");
+        const countdownBox = document.getElementById("countdownBox");
+
+        function classFor(state) {
+          if (state === 1) return "reservado";
+          if (state === 2) return "pagado";
+          return "";
+        }
+
+        function renderGrid() {
+          grid.innerHTML = "";
+          for (let i = 0; i < TOTAL; i++) {
+            const cell = document.createElement("div");
+            const label = i.toString().padStart(2, "0");
+            cell.className = "ticket " + classFor(tickets[i]);
+            cell.textContent = label;
+            cell.dataset.idx = i;
+            if (isAdmin && !isLocked) {
+              cell.addEventListener("click", onTicketClick);
+            }
+            grid.appendChild(cell);
+          }
+        }
+
+        async function loadTickets() {
+          try {
+            const res = await window.storage.get(STORAGE_KEY, true);
+            if (res && res.value) {
+              const parsed = JSON.parse(res.value);
+              if (Array.isArray(parsed) && parsed.length === TOTAL) {
+                tickets = parsed;
+              }
+            }
+          } catch (e) {
+            // no existe aún, se queda con el arreglo por defecto
+          }
+          renderGrid();
+        }
+
+        async function saveTickets() {
+          try {
+            await window.storage.set(
+              STORAGE_KEY,
+              JSON.stringify(tickets),
+              true,
+            );
+          } catch (e) {
+            console.error("No se pudo guardar el estado de los boletos", e);
+          }
+        }
+
+        function onTicketClick(e) {
+          if (isLocked) return;
+          const idx = parseInt(e.currentTarget.dataset.idx, 10);
+          tickets[idx] = (tickets[idx] + 1) % 3;
+          renderGrid();
+          saveTickets();
+        }
+
+        // --- Contador regresivo ---
+        function updateCountdown() {
+          const now = Date.now();
+          const diff = CUTOFF_UTC - now;
+
+          if (diff <= 0) {
+            if (!isLocked) {
+              isLocked = true;
+              closedBanner.style.display = "block";
+              countdownBox.style.display = "none";
+              document.body.classList.add("locked");
+              document.body.classList.remove("admin-mode");
+              renderGrid();
+            }
+            return;
+          }
+
+          const secs = Math.floor(diff / 1000) % 60;
+          const mins = Math.floor(diff / (1000 * 60)) % 60;
+          const hours = Math.floor(diff / (1000 * 60 * 60)) % 24;
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+          document.getElementById("cd-days").textContent = days;
+          document.getElementById("cd-hours").textContent = hours
+            .toString()
+            .padStart(2, "0");
+          document.getElementById("cd-mins").textContent = mins
+            .toString()
+            .padStart(2, "0");
+          document.getElementById("cd-secs").textContent = secs
+            .toString()
+            .padStart(2, "0");
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // --- Modo organizador ---
+        function openModal() {
+          modalOverlay.style.display = "flex";
+          modalError.textContent = "";
+          pinInput.value = "";
+          setTimeout(() => pinInput.focus(), 50);
+        }
+        function closeModal() {
+          modalOverlay.style.display = "none";
+        }
+
+        adminFab.addEventListener("click", () => {
+          if (isAdmin) {
+            // salir del modo organizador
+            isAdmin = false;
+            document.body.classList.remove("admin-mode");
+            adminBanner.style.display = "none";
+            cycleTip.style.display = "none";
+            adminHint.style.display = "none";
+            adminFab.textContent = "⚙️";
+            renderGrid();
+          } else {
+            openModal();
+          }
+        });
+
+        modalCancel.addEventListener("click", closeModal);
+        modalOverlay.addEventListener("click", (e) => {
+          if (e.target === modalOverlay) closeModal();
+        });
+
+        function tryLogin() {
+          if (pinInput.value === PIN) {
+            isAdmin = true;
+            closeModal();
+            if (!isLocked) {
+              document.body.classList.add("admin-mode");
+              adminBanner.style.display = "block";
+              cycleTip.style.display = "block";
+              adminHint.style.display = "block";
+            }
+            adminFab.textContent = "✅";
+            renderGrid();
+          } else {
+            modalError.textContent = "PIN incorrecto";
+          }
+        }
+
+        modalConfirm.addEventListener("click", tryLogin);
+        pinInput.addEventListener("keyup", (e) => {
+          if (e.key === "Enter") tryLogin();
+        });
+
+        loadTickets();
+      })();
+    </script>
+  </body>
+</html>

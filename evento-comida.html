@@ -1,0 +1,1456 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Puesto de Comida — Caja</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bungee&family=Space+Mono:wght@400;700&family=Work+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-deep: #16281f;
+        --bg-panel: #1e3a2c;
+        --bg-panel-2: #223f30;
+        --paper: #fbf6ea;
+        --paper-dim: #f1ead9;
+        --ink: #16281f;
+        --gold: #e3a857;
+        --gold-dim: #c8934a;
+        --tomato: #c1443c;
+        --tomato-dim: #a8382f;
+        --money: #4c8862;
+        --money-dim: #3d7150;
+        --sky: #3e7ea6;
+        --sky-dim: #356b8c;
+        --juego: #8b5fbf;
+        --tombola: #b8447a;
+        --muted: #7c8f81;
+        --line: rgba(251, 246, 234, 0.14);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Work Sans", sans-serif;
+        background:
+          radial-gradient(
+            circle at 15% 8%,
+            rgba(227, 168, 87, 0.08),
+            transparent 45%
+          ),
+          var(--bg-deep);
+        color: var(--paper);
+        min-height: 100vh;
+      }
+      .app {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 20px 16px 60px;
+      }
+
+      /* Header */
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+      }
+      .brand {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+      }
+      .brand h1 {
+        font-family: "Bungee", sans-serif;
+        font-size: 26px;
+        color: var(--gold);
+        margin: 0;
+        letter-spacing: 0.5px;
+        text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
+      }
+      .brand span {
+        font-size: 12px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 6px;
+        background: var(--bg-panel);
+        padding: 5px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+      }
+      .tab {
+        font-family: "Work Sans", sans-serif;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 9px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        color: var(--muted);
+        border: none;
+        background: transparent;
+        transition: 0.15s;
+        white-space: nowrap;
+      }
+      .tab.active {
+        background: var(--gold);
+        color: var(--ink);
+      }
+      .tab:not(.active):hover {
+        color: var(--paper);
+      }
+
+      .view {
+        display: none;
+      }
+      .view.active {
+        display: block;
+        animation: fade 0.25s ease;
+      }
+      @keyframes fade {
+        from {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ---- VENDER ---- */
+      .vender-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 18px;
+      }
+      @media (max-width: 820px) {
+        .vender-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .card-panel {
+        background: var(--bg-panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 16px;
+      }
+      .panel-title {
+        font-family: "Bungee", sans-serif;
+        font-size: 13px;
+        color: var(--gold);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 0 0 12px;
+      }
+
+      .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 10px;
+      }
+      .menu-item {
+        background: var(--paper);
+        color: var(--ink);
+        border-radius: 10px;
+        padding: 12px 10px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        transition: 0.12s;
+      }
+      .menu-item:hover {
+        transform: translateY(-2px);
+        border-color: var(--gold);
+      }
+      .menu-item:active {
+        transform: translateY(0px) scale(0.98);
+      }
+      .menu-item .mi-name {
+        font-weight: 700;
+        font-size: 14px;
+        line-height: 1.2;
+      }
+      .menu-item .mi-price {
+        font-family: "Space Mono", monospace;
+        font-weight: 700;
+        color: var(--money-dim);
+        font-size: 14px;
+      }
+      .menu-item .mi-cat {
+        font-size: 10px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .empty-note {
+        color: var(--muted);
+        font-size: 13px;
+        padding: 10px 2px;
+      }
+
+      /* Person selector */
+      .person-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .person-row input {
+        flex: 1;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: var(--bg-panel-2);
+        color: var(--paper);
+        font-size: 14px;
+        font-family: "Work Sans";
+      }
+      .person-row input::placeholder {
+        color: var(--muted);
+      }
+      .btn {
+        font-family: "Work Sans", sans-serif;
+        font-weight: 700;
+        font-size: 13px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: 0.15s;
+      }
+      .btn:hover {
+        filter: brightness(1.08);
+      }
+      .btn:active {
+        transform: scale(0.97);
+      }
+      .btn-gold {
+        background: var(--gold);
+        color: var(--ink);
+      }
+      .btn-outline {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--paper);
+      }
+
+      .person-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 14px;
+        max-height: 110px;
+        overflow-y: auto;
+      }
+      .chip {
+        padding: 7px 12px;
+        border-radius: 20px;
+        background: var(--bg-panel-2);
+        color: var(--paper);
+        font-size: 12.5px;
+        cursor: pointer;
+        border: 1px solid var(--line);
+        font-weight: 600;
+      }
+      .chip.selected {
+        background: var(--gold);
+        color: var(--ink);
+        border-color: var(--gold);
+      }
+
+      .cart-box {
+        border-top: 1px dashed var(--line);
+        padding-top: 12px;
+        margin-top: 4px;
+      }
+      .cart-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13.5px;
+        padding: 6px 0;
+        border-bottom: 1px solid rgba(251, 246, 234, 0.06);
+      }
+      .cart-line .ql {
+        font-family: "Space Mono", monospace;
+        color: var(--gold);
+        margin-right: 6px;
+      }
+      .cart-line .rm {
+        color: var(--tomato);
+        cursor: pointer;
+        font-weight: 700;
+        padding: 0 4px;
+      }
+      .cart-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 12px 0 4px;
+        font-family: "Space Mono", monospace;
+      }
+      .cart-total .lbl {
+        font-size: 12px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .cart-total .val {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--gold);
+      }
+
+      .pay-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .pay-btn {
+        padding: 12px 4px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 12.5px;
+        color: var(--paper);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+      }
+      .pay-btn span.ic {
+        font-size: 17px;
+      }
+      .pay-efectivo {
+        background: var(--money);
+      }
+      .pay-transferencia {
+        background: var(--sky);
+      }
+      .pay-deuda {
+        background: var(--tomato);
+      }
+      .pay-btn:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+
+      /* ---- CUENTAS ---- */
+      .cuentas-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      @media (max-width: 820px) {
+        .cuentas-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .col-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+      .col-head h2 {
+        font-family: "Bungee", sans-serif;
+        font-size: 14px;
+        margin: 0;
+        letter-spacing: 0.5px;
+      }
+      .col-head .count {
+        font-family: "Space Mono", monospace;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .ticket {
+        background: var(--paper);
+        color: var(--ink);
+        border-radius: 4px;
+        padding: 14px 14px 12px;
+        margin-bottom: 12px;
+        position: relative;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+      }
+      .ticket::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -6px;
+        height: 12px;
+        background: linear-gradient(135deg, var(--bg-deep) 50%, transparent 50%)
+          0 0/10px 12px repeat-x;
+      }
+      .ticket.pagado::before {
+        display: none;
+      }
+      .ticket .t-name {
+        font-weight: 800;
+        font-size: 15px;
+        margin-bottom: 2px;
+      }
+      .ticket .t-meta {
+        font-size: 11px;
+        color: var(--muted);
+        font-family: "Space Mono", monospace;
+        margin-bottom: 8px;
+      }
+      .ticket .t-items {
+        font-size: 12.5px;
+        color: #3a4a3f;
+        margin-bottom: 8px;
+        line-height: 1.5;
+      }
+      .ticket .t-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px dashed #c9c0a8;
+        padding-top: 8px;
+      }
+      .ticket .t-total .val {
+        font-family: "Space Mono", monospace;
+        font-weight: 800;
+        font-size: 17px;
+      }
+      .stamp {
+        position: absolute;
+        top: 10px;
+        right: 12px;
+        font-family: "Bungee", sans-serif;
+        font-size: 11px;
+        color: var(--money);
+        border: 2px solid var(--money);
+        border-radius: 6px;
+        padding: 2px 8px;
+        transform: rotate(8deg);
+        letter-spacing: 1px;
+        opacity: 0.85;
+      }
+      .cobrar-row {
+        display: flex;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      .cobrar-row button {
+        flex: 1;
+        font-size: 11px;
+        padding: 8px 4px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-weight: 700;
+        color: #fff;
+      }
+      .cb-efectivo {
+        background: var(--money);
+      }
+      .cb-transferencia {
+        background: var(--sky);
+      }
+
+      /* ---- INGRESOS ---- */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .stat {
+        background: var(--bg-panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px;
+      }
+      .stat .s-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .stat .s-val {
+        font-family: "Space Mono", monospace;
+        font-size: 22px;
+        font-weight: 700;
+      }
+      .stat.total .s-val {
+        color: var(--gold);
+      }
+      .stat.efec .s-val {
+        color: var(--money);
+      }
+      .stat.transf .s-val {
+        color: var(--sky);
+      }
+      .stat.deuda .s-val {
+        color: var(--tomato);
+      }
+      .stat.juegos .s-val {
+        color: var(--juego);
+      }
+      .stat.tombola .s-val {
+        color: var(--tombola);
+      }
+
+      table.hist {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      table.hist th {
+        text-align: left;
+        color: var(--muted);
+        font-weight: 600;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 6px 8px;
+        border-bottom: 1px solid var(--line);
+      }
+      table.hist td {
+        padding: 8px 8px;
+        border-bottom: 1px solid rgba(251, 246, 234, 0.06);
+      }
+      .badge {
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 10.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+      .badge.efectivo {
+        background: rgba(76, 136, 98, 0.25);
+        color: #8fd6ab;
+      }
+      .badge.transferencia {
+        background: rgba(62, 126, 166, 0.25);
+        color: #8fc7e8;
+      }
+      .badge.deuda {
+        background: rgba(193, 68, 60, 0.25);
+        color: #f0958e;
+      }
+
+      /* ---- MENU EDIT ---- */
+      .menu-edit-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+      }
+      .menu-edit-row input {
+        padding: 9px 10px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: var(--bg-panel-2);
+        color: var(--paper);
+        font-size: 13px;
+      }
+      .menu-edit-row input.name {
+        flex: 2;
+        min-width: 120px;
+      }
+      .menu-edit-row input.price {
+        flex: 1;
+        min-width: 80px;
+      }
+      .menu-list-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 9px 6px;
+        border-bottom: 1px solid rgba(251, 246, 234, 0.06);
+        font-size: 13.5px;
+      }
+      .menu-list-row .del {
+        color: var(--tomato);
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .empty-big {
+        text-align: center;
+        padding: 40px 10px;
+        color: var(--muted);
+      }
+      .empty-big .e-emoji {
+        font-size: 34px;
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      /* ---- JUEGOS / TOMBOLA ---- */
+      .form-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+      }
+      .form-row input {
+        padding: 9px 10px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: var(--bg-panel-2);
+        color: var(--paper);
+        font-size: 13px;
+        flex: 1;
+        min-width: 100px;
+      }
+      .form-row input::placeholder {
+        color: var(--muted);
+      }
+
+      .record-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 8px;
+        border-bottom: 1px solid rgba(251, 246, 234, 0.06);
+        font-size: 13.5px;
+      }
+      .record-row .r-name {
+        font-weight: 700;
+      }
+      .record-row .r-detail {
+        font-size: 11.5px;
+        color: var(--muted);
+        font-family: "Space Mono", monospace;
+        margin-top: 2px;
+      }
+      .record-row .r-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .record-row .r-total {
+        font-family: "Space Mono", monospace;
+        font-weight: 800;
+        color: var(--gold);
+      }
+      .record-row .del {
+        color: var(--tomato);
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .record-total-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 8px 4px;
+        border-top: 1px dashed var(--line);
+        margin-top: 6px;
+      }
+      .record-total-bar .lbl {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .record-total-bar .val {
+        font-family: "Space Mono", monospace;
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--gold);
+      }
+
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--bg-panel-2);
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="header">
+        <div class="brand">
+          <h1>🍔 Caja del Evento</h1>
+          <span>ventas · cuentas · ingresos</span>
+        </div>
+        <div class="tabs">
+          <button class="tab active" data-tab="vender">Vender</button>
+          <button class="tab" data-tab="juegos">Juegos</button>
+          <button class="tab" data-tab="tombola">Tómbola</button>
+          <button class="tab" data-tab="cuentas">Cuentas</button>
+          <button class="tab" data-tab="ingresos">Ingresos</button>
+          <button class="tab" data-tab="menu">Menú</button>
+        </div>
+      </div>
+
+      <!-- VENDER -->
+      <div class="view active" id="view-vender">
+        <div class="vender-grid">
+          <div class="card-panel">
+            <p class="panel-title">Menú</p>
+            <div class="menu-grid" id="menuGrid"></div>
+          </div>
+
+          <div class="card-panel">
+            <p class="panel-title">Cuenta</p>
+            <div class="person-row">
+              <input
+                type="text"
+                id="personInput"
+                placeholder="Nombre de la persona..."
+              />
+              <button class="btn btn-gold" id="addPersonBtn">Agregar</button>
+            </div>
+            <div class="person-chips" id="personChips"></div>
+
+            <div class="cart-box">
+              <div id="cartLines"></div>
+              <div class="cart-total">
+                <span class="lbl">Total</span>
+                <span class="val" id="cartTotal">$0</span>
+              </div>
+              <div class="pay-buttons">
+                <button class="pay-btn pay-efectivo" id="payEfectivo">
+                  <span class="ic">💵</span>Efectivo
+                </button>
+                <button class="pay-btn pay-transferencia" id="payTransferencia">
+                  <span class="ic">🏦</span>Transf.
+                </button>
+                <button class="pay-btn pay-deuda" id="payDeuda">
+                  <span class="ic">📝</span>Fiado
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JUEGOS -->
+      <div class="view" id="view-juegos">
+        <div class="card-panel">
+          <p class="panel-title">Registrar juego</p>
+          <div class="form-row">
+            <input type="text" id="gamePlayer" placeholder="Jugador" />
+            <input
+              type="number"
+              id="gameTickets"
+              placeholder="Boletos"
+              min="1"
+            />
+            <input
+              type="number"
+              id="gameDiscount"
+              placeholder="Descuento"
+              value="0"
+              min="0"
+            />
+            <button class="btn btn-gold" id="addGameBtn">Registrar</button>
+          </div>
+          <div class="empty-note">Cada boleto vale $25.</div>
+          <div id="gamesList"></div>
+          <div class="record-total-bar">
+            <span class="lbl">Total juegos</span
+            ><span class="val" id="gamesTotal">$0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOMBOLA -->
+      <div class="view" id="view-tombola">
+        <div class="card-panel">
+          <p class="panel-title">Registrar tómbola</p>
+          <div class="form-row">
+            <input type="text" id="tombolaPlayer" placeholder="Jugador" />
+            <input
+              type="number"
+              id="tombolaTickets"
+              placeholder="Cantidad de boletos"
+              min="1"
+            />
+            <input
+              type="number"
+              id="tombolaPrice"
+              placeholder="Precio por boleto"
+              value="1.00"
+              step="0.01"
+              min="0"
+            />
+            <button class="btn btn-gold" id="addTombolaBtn">Registrar</button>
+          </div>
+          <div id="tombolaList"></div>
+          <div class="record-total-bar">
+            <span class="lbl">Total tómbola</span
+            ><span class="val" id="tombolaTotal">$0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CUENTAS -->
+      <div class="view" id="view-cuentas">
+        <div class="cuentas-grid">
+          <div>
+            <div class="col-head">
+              <h2>⏳ Pendientes</h2>
+              <span class="count" id="countPend">0</span>
+            </div>
+            <div id="listPendientes"></div>
+          </div>
+          <div>
+            <div class="col-head">
+              <h2>✅ Pagados</h2>
+              <span class="count" id="countPag">0</span>
+            </div>
+            <div id="listPagados"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INGRESOS -->
+      <div class="view" id="view-ingresos">
+        <div class="stats-grid">
+          <div class="stat total">
+            <div class="s-label">Ingresos totales</div>
+            <div class="s-val" id="statTotal">$0</div>
+          </div>
+          <div class="stat efec">
+            <div class="s-label">Efectivo</div>
+            <div class="s-val" id="statEfectivo">$0</div>
+          </div>
+          <div class="stat transf">
+            <div class="s-label">Transferencia</div>
+            <div class="s-val" id="statTransferencia">$0</div>
+          </div>
+          <div class="stat deuda">
+            <div class="s-label">Deuda pendiente</div>
+            <div class="s-val" id="statDeuda">$0</div>
+          </div>
+          <div class="stat juegos">
+            <div class="s-label">Juegos</div>
+            <div class="s-val" id="statJuegos">$0</div>
+          </div>
+          <div class="stat tombola">
+            <div class="s-label">Tómbola</div>
+            <div class="s-val" id="statTombola">$0</div>
+          </div>
+        </div>
+        <div class="card-panel">
+          <p class="panel-title">Historial de órdenes</p>
+          <table class="hist">
+            <thead>
+              <tr>
+                <th>Persona</th>
+                <th>Detalle</th>
+                <th>Total</th>
+                <th>Método</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="histBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- MENU EDIT -->
+      <div class="view" id="view-menu">
+        <div class="card-panel">
+          <p class="panel-title">Editar menú</p>
+          <div class="menu-edit-row">
+            <input
+              type="text"
+              class="name"
+              id="newItemName"
+              placeholder="Nombre (ej. Hamburguesa)"
+            />
+            <input
+              type="number"
+              class="price"
+              id="newItemPrice"
+              placeholder="Precio"
+            />
+            <button class="btn btn-gold" id="addItemBtn">Agregar ítem</button>
+          </div>
+          <div id="menuEditList"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const STORAGE_KEY = "evento-comida-state";
+      const GAME_TICKET_PRICE = 25;
+      let state = { items: [], people: [], orders: [], games: [], tombola: [] };
+      let currentPersonId = null;
+      let cart = []; // {itemId, name, price, qty}
+
+      function money(n) {
+        return (
+          "$" +
+          (Math.round(n * 100) / 100).toLocaleString("es", {
+            minimumFractionDigits: n % 1 !== 0 ? 2 : 0,
+            maximumFractionDigits: 2,
+          })
+        );
+      }
+      function uid() {
+        return (
+          Math.random().toString(36).slice(2, 10) + Date.now().toString(36)
+        );
+      }
+
+      async function loadState() {
+        try {
+          const res = await window.storage.get(STORAGE_KEY, false);
+          if (res && res.value) {
+            const parsed = JSON.parse(res.value);
+            state = Object.assign(
+              { items: [], people: [], orders: [], games: [], tombola: [] },
+              parsed,
+            );
+          } else {
+            state.items = [
+              { id: uid(), name: "Hamburguesa", price: 5, cat: "Comida" },
+              { id: uid(), name: "Hot dog", price: 3, cat: "Comida" },
+              { id: uid(), name: "Papas fritas", price: 2.5, cat: "Comida" },
+              { id: uid(), name: "Refresco", price: 1.5, cat: "Bebida" },
+              { id: uid(), name: "Agua", price: 1, cat: "Bebida" },
+            ];
+            await saveState();
+          }
+        } catch (e) {
+          console.error("Error cargando estado", e);
+        }
+        renderAll();
+      }
+
+      async function saveState() {
+        try {
+          await window.storage.set(STORAGE_KEY, JSON.stringify(state), false);
+        } catch (e) {
+          console.error("Error guardando estado", e);
+        }
+      }
+
+      // ---------- TABS ----------
+      document.querySelectorAll(".tab").forEach((t) => {
+        t.addEventListener("click", () => {
+          document
+            .querySelectorAll(".tab")
+            .forEach((x) => x.classList.remove("active"));
+          document
+            .querySelectorAll(".view")
+            .forEach((x) => x.classList.remove("active"));
+          t.classList.add("active");
+          document
+            .getElementById("view-" + t.dataset.tab)
+            .classList.add("active");
+          renderAll();
+        });
+      });
+
+      // ---------- VENDER: MENU ----------
+      function renderMenuGrid() {
+        const grid = document.getElementById("menuGrid");
+        if (state.items.length === 0) {
+          grid.innerHTML =
+            '<div class="empty-note">No hay ítems en el menú. Ve a la pestaña "Menú" para agregar.</div>';
+          return;
+        }
+        grid.innerHTML = state.items
+          .map(
+            (it) => `
+    <button class="menu-item" data-id="${it.id}">
+      <span class="mi-cat">${it.cat || ""}</span>
+      <span class="mi-name">${escapeHtml(it.name)}</span>
+      <span class="mi-price">${money(it.price)}</span>
+    </button>
+  `,
+          )
+          .join("");
+        grid.querySelectorAll(".menu-item").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const item = state.items.find((i) => i.id === btn.dataset.id);
+            addToCart(item);
+          });
+        });
+      }
+
+      function addToCart(item) {
+        const existing = cart.find((c) => c.itemId === item.id);
+        if (existing) {
+          existing.qty += 1;
+        } else {
+          cart.push({
+            itemId: item.id,
+            name: item.name,
+            price: item.price,
+            qty: 1,
+          });
+        }
+        renderCart();
+      }
+
+      function renderCart() {
+        const linesEl = document.getElementById("cartLines");
+        if (cart.length === 0) {
+          linesEl.innerHTML =
+            '<div class="empty-note">Toca un ítem del menú para agregarlo.</div>';
+        } else {
+          linesEl.innerHTML = cart
+            .map(
+              (c, idx) => `
+      <div class="cart-line">
+        <span><span class="ql">${c.qty}×</span>${escapeHtml(c.name)}</span>
+        <span>${money(c.price * c.qty)} <span class="rm" data-idx="${idx}">✕</span></span>
+      </div>
+    `,
+            )
+            .join("");
+          linesEl.querySelectorAll(".rm").forEach((el) => {
+            el.addEventListener("click", () => {
+              cart.splice(parseInt(el.dataset.idx), 1);
+              renderCart();
+            });
+          });
+        }
+        const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+        document.getElementById("cartTotal").textContent = money(total);
+        const canPay = cart.length > 0 && currentPersonId;
+        document.getElementById("payEfectivo").disabled = !canPay;
+        document.getElementById("payTransferencia").disabled = !canPay;
+        document.getElementById("payDeuda").disabled = !canPay;
+      }
+
+      // ---------- VENDER: PERSONAS ----------
+      document
+        .getElementById("addPersonBtn")
+        .addEventListener("click", addPersonFromInput);
+      document
+        .getElementById("personInput")
+        .addEventListener("keydown", (e) => {
+          if (e.key === "Enter") addPersonFromInput();
+        });
+      function addPersonFromInput() {
+        const input = document.getElementById("personInput");
+        const name = input.value.trim();
+        if (!name) return;
+        const existing = state.people.find(
+          (p) => p.name.toLowerCase() === name.toLowerCase(),
+        );
+        let person;
+        if (existing) {
+          person = existing;
+        } else {
+          person = { id: uid(), name };
+          state.people.push(person);
+          saveState();
+        }
+        currentPersonId = person.id;
+        input.value = "";
+        renderPersonChips();
+        renderCart();
+      }
+
+      function renderPersonChips() {
+        const el = document.getElementById("personChips");
+        if (state.people.length === 0) {
+          el.innerHTML =
+            '<div class="empty-note">Agrega una persona para empezar a vender.</div>';
+          return;
+        }
+        el.innerHTML = state.people
+          .map(
+            (p) => `
+    <div class="chip ${p.id === currentPersonId ? "selected" : ""}" data-id="${p.id}">${escapeHtml(p.name)}</div>
+  `,
+          )
+          .join("");
+        el.querySelectorAll(".chip").forEach((c) => {
+          c.addEventListener("click", () => {
+            currentPersonId = c.dataset.id;
+            renderPersonChips();
+            renderCart();
+          });
+        });
+      }
+
+      // ---------- VENDER: PAGO ----------
+      document
+        .getElementById("payEfectivo")
+        .addEventListener("click", () => confirmOrder("efectivo"));
+      document
+        .getElementById("payTransferencia")
+        .addEventListener("click", () => confirmOrder("transferencia"));
+      document
+        .getElementById("payDeuda")
+        .addEventListener("click", () => confirmOrder("deuda"));
+
+      function confirmOrder(method) {
+        if (cart.length === 0 || !currentPersonId) return;
+        const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+        const order = {
+          id: uid(),
+          personId: currentPersonId,
+          items: cart.map((c) => ({
+            name: c.name,
+            price: c.price,
+            qty: c.qty,
+          })),
+          total,
+          method,
+          status: method === "deuda" ? "pendiente" : "pagado",
+          createdAt: Date.now(),
+          paidAt: method === "deuda" ? null : Date.now(),
+        };
+        state.orders.push(order);
+        cart = [];
+        saveState();
+        renderCart();
+        renderAll();
+      }
+
+      // ---------- JUEGOS ----------
+      document.getElementById("addGameBtn").addEventListener("click", addGame);
+      function addGame() {
+        const playerEl = document.getElementById("gamePlayer");
+        const ticketsEl = document.getElementById("gameTickets");
+        const discountEl = document.getElementById("gameDiscount");
+        const player = playerEl.value.trim();
+        const tickets = parseInt(ticketsEl.value);
+        const discount = parseFloat(discountEl.value) || 0;
+        if (!player || !tickets || tickets < 1) return;
+        const subtotal = tickets * GAME_TICKET_PRICE;
+        const total = Math.max(subtotal - discount, 0);
+        state.games.push({
+          id: uid(),
+          player,
+          tickets,
+          discount,
+          subtotal,
+          total,
+          createdAt: Date.now(),
+        });
+        playerEl.value = "";
+        ticketsEl.value = "";
+        discountEl.value = "0";
+        saveState();
+        renderAll();
+      }
+
+      function renderJuegos() {
+        const el = document.getElementById("gamesList");
+        const list = [...state.games].sort((a, b) => b.createdAt - a.createdAt);
+        if (list.length === 0) {
+          el.innerHTML =
+            '<div class="empty-note">No hay juegos registrados todavía.</div>';
+        } else {
+          el.innerHTML = list
+            .map(
+              (g) => `
+      <div class="record-row">
+        <div>
+          <div class="r-name">${escapeHtml(g.player)}</div>
+          <div class="r-detail">${g.tickets} boleto${g.tickets !== 1 ? "s" : ""} × $25${g.discount > 0 ? ` − desc. ${money(g.discount)}` : ""}</div>
+        </div>
+        <div class="r-right">
+          <span class="r-total">${money(g.total)}</span>
+          <span class="del" data-id="${g.id}">✕</span>
+        </div>
+      </div>
+    `,
+            )
+            .join("");
+          el.querySelectorAll(".del").forEach((b) => {
+            b.addEventListener("click", () => {
+              state.games = state.games.filter((g) => g.id !== b.dataset.id);
+              saveState();
+              renderAll();
+            });
+          });
+        }
+        const total = state.games.reduce((s, g) => s + g.total, 0);
+        document.getElementById("gamesTotal").textContent = money(total);
+      }
+
+      // ---------- TOMBOLA ----------
+      document
+        .getElementById("addTombolaBtn")
+        .addEventListener("click", addTombola);
+      function addTombola() {
+        const playerEl = document.getElementById("tombolaPlayer");
+        const ticketsEl = document.getElementById("tombolaTickets");
+        const priceEl = document.getElementById("tombolaPrice");
+        const player = playerEl.value.trim();
+        const tickets = parseInt(ticketsEl.value);
+        const price = parseFloat(priceEl.value);
+        if (!player || !tickets || tickets < 1 || isNaN(price) || price < 0)
+          return;
+        const total = tickets * price;
+        state.tombola.push({
+          id: uid(),
+          player,
+          tickets,
+          price,
+          total,
+          createdAt: Date.now(),
+        });
+        playerEl.value = "";
+        ticketsEl.value = "";
+        priceEl.value = "1.00";
+        saveState();
+        renderAll();
+      }
+
+      function renderTombola() {
+        const el = document.getElementById("tombolaList");
+        const list = [...state.tombola].sort(
+          (a, b) => b.createdAt - a.createdAt,
+        );
+        if (list.length === 0) {
+          el.innerHTML =
+            '<div class="empty-note">No hay boletos de tómbola registrados todavía.</div>';
+        } else {
+          el.innerHTML = list
+            .map(
+              (t) => `
+      <div class="record-row">
+        <div>
+          <div class="r-name">${escapeHtml(t.player)}</div>
+          <div class="r-detail">${t.tickets} boleto${t.tickets !== 1 ? "s" : ""} × ${money(t.price)}</div>
+        </div>
+        <div class="r-right">
+          <span class="r-total">${money(t.total)}</span>
+          <span class="del" data-id="${t.id}">✕</span>
+        </div>
+      </div>
+    `,
+            )
+            .join("");
+          el.querySelectorAll(".del").forEach((b) => {
+            b.addEventListener("click", () => {
+              state.tombola = state.tombola.filter(
+                (t) => t.id !== b.dataset.id,
+              );
+              saveState();
+              renderAll();
+            });
+          });
+        }
+        const total = state.tombola.reduce((s, t) => s + t.total, 0);
+        document.getElementById("tombolaTotal").textContent = money(total);
+      }
+
+      // ---------- CUENTAS ----------
+      function renderCuentas() {
+        const pend = state.orders
+          .filter((o) => o.status === "pendiente")
+          .sort((a, b) => b.createdAt - a.createdAt);
+        const pag = state.orders
+          .filter((o) => o.status === "pagado")
+          .sort(
+            (a, b) => (b.paidAt || b.createdAt) - (a.paidAt || a.createdAt),
+          );
+        document.getElementById("countPend").textContent = pend.length;
+        document.getElementById("countPag").textContent = pag.length;
+
+        const pendEl = document.getElementById("listPendientes");
+        pendEl.innerHTML =
+          pend.length === 0
+            ? '<div class="empty-big"><span class="e-emoji">🎫</span>No hay cuentas pendientes.</div>'
+            : pend.map((o) => ticketHtml(o, false)).join("");
+
+        const pagEl = document.getElementById("listPagados");
+        pagEl.innerHTML =
+          pag.length === 0
+            ? '<div class="empty-big"><span class="e-emoji">📭</span>Todavía no hay pagos registrados.</div>'
+            : pag.map((o) => ticketHtml(o, true)).join("");
+
+        pendEl
+          .querySelectorAll(".cb-efectivo")
+          .forEach((b) =>
+            b.addEventListener("click", () =>
+              saldarDeuda(b.dataset.id, "efectivo"),
+            ),
+          );
+        pendEl
+          .querySelectorAll(".cb-transferencia")
+          .forEach((b) =>
+            b.addEventListener("click", () =>
+              saldarDeuda(b.dataset.id, "transferencia"),
+            ),
+          );
+      }
+
+      function ticketHtml(order, paid) {
+        const person = state.people.find((p) => p.id === order.personId);
+        const itemsStr = order.items
+          .map((i) => `${i.qty}× ${escapeHtml(i.name)}`)
+          .join(", ");
+        const date = new Date(order.createdAt).toLocaleString("es", {
+          day: "2-digit",
+          month: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        return `
+    <div class="ticket ${paid ? "pagado" : ""}">
+      ${paid ? `<span class="stamp">PAGADO</span>` : ""}
+      <div class="t-name">${escapeHtml(person ? person.name : "—")}</div>
+      <div class="t-meta">${date}${paid ? " · " + order.method : ""}</div>
+      <div class="t-items">${itemsStr}</div>
+      <div class="t-total"><span>Total</span><span class="val">${money(order.total)}</span></div>
+      ${
+        !paid
+          ? `
+        <div class="cobrar-row">
+          <button class="cb-efectivo" data-id="${order.id}">💵 Cobrar efectivo</button>
+          <button class="cb-transferencia" data-id="${order.id}">🏦 Cobrar transf.</button>
+        </div>`
+          : ""
+      }
+    </div>
+  `;
+      }
+
+      function saldarDeuda(orderId, method) {
+        const order = state.orders.find((o) => o.id === orderId);
+        if (!order) return;
+        order.status = "pagado";
+        order.method = method;
+        order.paidAt = Date.now();
+        saveState();
+        renderAll();
+      }
+
+      // ---------- INGRESOS ----------
+      function renderIngresos() {
+        const pagados = state.orders.filter((o) => o.status === "pagado");
+        const efectivo = pagados
+          .filter((o) => o.method === "efectivo")
+          .reduce((s, o) => s + o.total, 0);
+        const transferencia = pagados
+          .filter((o) => o.method === "transferencia")
+          .reduce((s, o) => s + o.total, 0);
+        const deuda = state.orders
+          .filter((o) => o.status === "pendiente")
+          .reduce((s, o) => s + o.total, 0);
+        const juegosTotal = state.games.reduce((s, g) => s + g.total, 0);
+        const tombolaTotal = state.tombola.reduce((s, t) => s + t.total, 0);
+        const total = efectivo + transferencia + juegosTotal + tombolaTotal;
+
+        document.getElementById("statTotal").textContent = money(total);
+        document.getElementById("statEfectivo").textContent = money(efectivo);
+        document.getElementById("statTransferencia").textContent =
+          money(transferencia);
+        document.getElementById("statDeuda").textContent = money(deuda);
+        document.getElementById("statJuegos").textContent = money(juegosTotal);
+        document.getElementById("statTombola").textContent =
+          money(tombolaTotal);
+
+        const rows = [...state.orders]
+          .sort((a, b) => b.createdAt - a.createdAt)
+          .map((o) => {
+            const person = state.people.find((p) => p.id === o.personId);
+            const itemsStr = o.items
+              .map((i) => `${i.qty}× ${escapeHtml(i.name)}`)
+              .join(", ");
+            return `
+      <tr>
+        <td>${escapeHtml(person ? person.name : "—")}</td>
+        <td>${itemsStr}</td>
+        <td style="font-family:'Space Mono',monospace;">${money(o.total)}</td>
+        <td><span class="badge ${o.method}">${o.method}</span></td>
+        <td>${o.status === "pagado" ? "✅ Pagado" : "⏳ Pendiente"}</td>
+      </tr>
+    `;
+          })
+          .join("");
+        document.getElementById("histBody").innerHTML =
+          rows ||
+          `<tr><td colspan="5" style="color:var(--muted);text-align:center;padding:20px;">Aún no hay ventas registradas.</td></tr>`;
+      }
+
+      // ---------- MENU EDIT ----------
+      document.getElementById("addItemBtn").addEventListener("click", () => {
+        const nameEl = document.getElementById("newItemName");
+        const priceEl = document.getElementById("newItemPrice");
+        const name = nameEl.value.trim();
+        const price = parseFloat(priceEl.value);
+        if (!name || isNaN(price)) return;
+        state.items.push({ id: uid(), name, price, cat: "" });
+        nameEl.value = "";
+        priceEl.value = "";
+        saveState();
+        renderAll();
+      });
+
+      function renderMenuEdit() {
+        const el = document.getElementById("menuEditList");
+        if (state.items.length === 0) {
+          el.innerHTML = '<div class="empty-note">No hay ítems todavía.</div>';
+          return;
+        }
+        el.innerHTML = state.items
+          .map(
+            (it) => `
+    <div class="menu-list-row">
+      <span>${escapeHtml(it.name)} — <strong>${money(it.price)}</strong></span>
+      <span class="del" data-id="${it.id}">Eliminar</span>
+    </div>
+  `,
+          )
+          .join("");
+        el.querySelectorAll(".del").forEach((b) => {
+          b.addEventListener("click", () => {
+            state.items = state.items.filter((i) => i.id !== b.dataset.id);
+            saveState();
+            renderAll();
+          });
+        });
+      }
+
+      function escapeHtml(str) {
+        return String(str).replace(
+          /[&<>"']/g,
+          (m) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[m],
+        );
+      }
+
+      function renderAll() {
+        renderMenuGrid();
+        renderPersonChips();
+        renderCart();
+        renderJuegos();
+        renderTombola();
+        renderCuentas();
+        renderIngresos();
+        renderMenuEdit();
+      }
+
+      loadState();
+    </script>
+  </body>
+</html>

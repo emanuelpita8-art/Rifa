@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Rifa - 30 de agosto del 2026</title>
+    <title>Rifa - 15 de agosto del 2026</title>
     <style>
       :root {
         --bg: #0f1420;
@@ -59,6 +59,23 @@
         font-size: 0.9rem;
         margin-top: 2px;
       }
+      .producto {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.producto-img {
+  width: 250px;
+  max-width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.precio {
+  font-size: 1.2rem;
+  margin-top: 10px;
+  font-weight: 500;
+}
 
       .countdown-box {
         background: var(--card);
@@ -328,11 +345,30 @@
   </head>
   <body>
     <div class="wrap">
-      <header>
-        <h1>🎟️ Gran Rifa</h1>
-        <div class="fecha" id="fechaSorteo">30 de agosto del 2026</div>
-        <div class="hora">Sorteo a las 3:00 PM (hora de Panamá)</div>
-      </header>
+<header>
+  <h1>🎟️ Gran Rifa</h1>
+
+  <div class="fecha" id="fechaSorteo">
+    15 de agosto de 2026
+  </div>
+
+  <div class="hora">
+    Sorteo a las 3:00 PM
+  </div>
+
+<div class="producto">
+  <img src="premio.png" alt="Producto de la rifa" class="producto-img">
+
+  <h2>Producto de la Rifa</h2>
+
+  <p class="precio">
+    Valor del boleto: <strong>$0.50</strong>
+  </p>
+  <p class="yappy">
+    Yappy: <strong> 6994-8723 - Nayelis Pérezs</strong>
+  </p>
+</div>
+</header>
 
       <div class="closed-banner" id="closedBanner">
         🚫 VENTAS CERRADAS — Ya no se pueden reservar ni comprar números
@@ -371,7 +407,7 @@
       <div class="legend">
         <div class="item"><span class="dot libre"></span> Disponible</div>
         <div class="item">
-          <span class="dot reservado"></span> Reservado (aún se puede comprar)
+          <span class="dot reservado"></span> Reservado
         </div>
         <div class="item"><span class="dot pagado"></span> Pagado</div>
       </div>
@@ -384,8 +420,7 @@
       </div>
 
       <footer>
-        Toca el número 28 para verlo pagado 😉 &nbsp;·&nbsp; Página de
-        visualización de la rifa
+  Página de visualización de la rifa
       </footer>
     </div>
 
@@ -415,7 +450,7 @@
         const PIN = "2026"; // PIN simple del organizador (cámbialo si quieres)
         // Fecha/hora límite: 30 de agosto de 2026, 2:30 PM hora de Panamá (media hora antes de las 3:00 PM)
         // Panamá no tiene horario de verano, siempre UTC-5 => 14:30 -05:00 = 19:30 UTC
-        const CUTOFF_UTC = Date.UTC(2026, 7, 30, 19, 30, 0);
+        const CUTOFF_UTC = Date.UTC(2026, 7, 15, 19, 30, 0);;
 
         const STORAGE_KEY = "raffle_tickets_v1";
         let tickets = new Array(TOTAL).fill(0); // 0 libre, 1 reservado, 2 pagado
